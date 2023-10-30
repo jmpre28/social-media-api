@@ -1,4 +1,4 @@
-const { Thought } = require('../models');
+const { Thought, Reaction } = require('../models');
 
 module.exports = {
 // Finds all thoughts
@@ -63,6 +63,42 @@ module.exports = {
             }
 
             res.status(200).json(thought);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
+// Adds a reaction to a thought
+    async addReaction (req, res) {
+        try {
+            const thoughtReaction = await Thought.findOneAndUpdate(
+                { _id: req.params.id },
+                { $pull: { reaction: { reactionId: req.params.reactionId } } },
+                { runValidators: true, new: true}
+            )
+            if(!thoughtReaction) {
+                res.status(404).json({ message: 'Thought does not exist' });
+            }
+
+            res.status(200).json(thoughtReaction);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
+// Removes a reaction from a thought
+    async removeReaction (req, res) {
+        try {
+            const thoughtReaction = await Thought.findOneAndUpdate(
+                { _id: req.params.id },
+                { $pull: { reaction: { reactionId: req.params.reactionId } } },
+                { runValidators: true, new: true }
+            )
+            if(!thoughtReaction) {
+                res.status(404).json({ message: 'Thought does not exist' });
+            }
+
+            res.status(200).json(thoughtReaction);
         } catch (err) {
             res.status(500).json(err);
         }
