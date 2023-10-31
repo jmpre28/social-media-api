@@ -1,5 +1,4 @@
 const { Schema, model } = require('mongoose');
-const Thought = require('./Thought,js');
 
 const userSchema = new Schema(
     {
@@ -13,12 +12,12 @@ const userSchema = new Schema(
             type: String,
             required: true,
             unique: true,
-            match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+            match: [/.+@.+\..+/, 'Must match an email address!'],
         },
         thoughts: [
             { 
                 type: Schema.Types.ObjectId, 
-                ref: Thought 
+                ref: 'Thought' 
             }
         ],
         friends: [
@@ -36,13 +35,9 @@ const userSchema = new Schema(
     }
 );
 
-/*
-Create a virtual called friendCount that retrieves the 
-length of the user's friends array field on query.
-*/
-userSchema.virtual('friendCount').get(() => {
+userSchema.virtual('friendCount').get(function() {
     return this.friends.length;
-})
+});
 
 const User = model('User', userSchema);
 

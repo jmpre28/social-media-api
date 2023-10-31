@@ -1,13 +1,15 @@
-const { Thought, Reaction } = require('../models');
+const { Thought } = require('../models');
 
 module.exports = {
 // Finds all thoughts
     async getAllThoughts(req, res) {
         try {
-            const thoughts = Thought.find();
+            const thoughts = await Thought.find().select('-__v');
+            console.log(thoughts);
 
             res.status(200).json(thoughts);
         } catch (err) {
+            console.error(err)
             res.status(500).json(err);
         }
     },
@@ -73,7 +75,7 @@ module.exports = {
         try {
             const thoughtReaction = await Thought.findOneAndUpdate(
                 { _id: req.params.id },
-                { $pull: { reactions: { reactionId: req.params.reactionId } } },
+                { $addToSet: { reactions: req.body } },
                 { runValidators: true, new: true}
             )
             if(!thoughtReaction) {
