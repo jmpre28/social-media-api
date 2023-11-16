@@ -63,7 +63,7 @@ module.exports = {
 // Deletes a user by ID
     async deleteUser(req, res) {
         try {
-            const user = User.findOneAndDelete({ _id: req.params.id });
+            const user = await User.findOneAndDelete({ _id: req.params.id });
             if(!user) {
                 res.status(404).json({ message: 'User does not exist' });
             }
@@ -78,18 +78,22 @@ module.exports = {
 // Adds a friend to a user
     async addFriend(req, res) {
         try {
-            const friend = await User.findOneAndUpdate(
-                { _id: req.params.id },
-                { $addToSet: { friends: req.body } },
+            const friend = await User.findByIdAndUpdate(
+                req.params.id,
+                { $addToSet: { friends: req.params.friendId } },
                 { runValidators: true, new: true }
-            )
-            if(!friend) {
-                res.status(404).json({ message: 'User does not exist' });
+            );
+
+            if (!friend) {
+                return res.status(404).json({ message: 'User does not exist' });
             }
 
+            console.log('User ID:', req.params.id);
+            console.log('Friend ID:', req.params.friendId);
             res.status(200).json(friend);
         } catch (err) {
-            res.status(500).json(err);
+            console.error(err);
+            res.status(500).json({ error: 'Internal server error' });
         }
     },
 
@@ -98,7 +102,7 @@ module.exports = {
         try {
             const friend = await User.findOneAndUpdate(
                 { _id: req.params.id },
-                { $pull: { friends: { friendsId: req.params.friendId} } },
+                { $pull: { friends: req.params.friendId } },
                 { runValidators: true, new: true }
             )
             if(!friend) {
